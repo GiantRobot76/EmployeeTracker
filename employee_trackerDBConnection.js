@@ -1,4 +1,5 @@
 const mysql = require("mysql");
+const cTable = require("console.table");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -15,11 +16,17 @@ const connection = mysql.createConnection({
 });
 
 function queryEmployees() {
-  connection.query("SELECT * FROM employees", (err, res) => {
-    if (err) throw err;
-    console.log(res);
-    connection.end();
-  });
+  connection.query(
+    "SELECT dept_name, first_name, last_name FROM department INNER JOIN employee WHERE department.id = employee.id",
+    (err, res) => {
+      if (err) throw err;
+
+      const table = cTable.getTable(res);
+      console.log(table);
+
+      connection.end();
+    }
+  );
 }
 
 connection.connect((err) => {

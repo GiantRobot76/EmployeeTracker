@@ -3,9 +3,9 @@ CREATE DATABASE employee_trackerDB;
 
 USE employee_trackerDB;
 
-CREATE TABLE employees(
+CREATE TABLE department(
 id INTEGER AUTO_INCREMENT,
-name VARCHAR(30),
+dept_name VARCHAR(30),
 PRIMARY KEY(id)
 );
 
@@ -25,4 +25,7 @@ role_id INTEGER,
 MANAGER_ID INTEGER,
 PRIMARY KEY(id)
 
-) 
+); 
+
+INSERT INTO department (dept_name) VALUES ("Engineering"),("Accounting"),("Finance"),("Operations"),("Manufacturing"),("Motor Pool"),("Research");
+INSERT INTO employee (first_name, last_name, id) VALUES ("George", "McClellan", 1), ("Ulysses", "Grant", 2), ("William", "Sherman", 3);
