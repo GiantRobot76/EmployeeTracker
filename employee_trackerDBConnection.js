@@ -14,8 +14,16 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
+function queryEmployees() {
+  connection.query("SELECT * FROM employees", (err, res) => {
+    if (err) throw err;
+    console.log(res);
+    connection.end();
+  });
+}
+
 connection.connect((err) => {
   if (err) throw err;
   console.log(`connected as id ${connection.threadId}`);
-  connection.end();
+  queryEmployees();
 });
