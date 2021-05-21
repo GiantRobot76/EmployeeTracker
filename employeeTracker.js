@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const cTable = require("console.table");
+const inquirer = require("inquirer");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -15,6 +16,7 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
+//Generates Overall Summary Table of all Employees, Roles, and Departments
 function queryEmployees() {
   //Chained Inner Join of all 3 Tables on appropriate foreign keys
   connection.query(
@@ -28,6 +30,29 @@ function queryEmployees() {
       connection.end();
     }
   );
+}
+
+//functions that add new departments, roles, and employees
+function addDepartment() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the department you wish to add?",
+        name: "newDepartment",
+      },
+    ])
+    .then((response) => {
+      let newDept = response.newDepartment;
+      connection.query(
+        `INSERT INTO department (dept_name) VALUES ("${newDept}")`,
+        (err, res) => {
+          if (err) throw err;
+          console.log("New Department Added!");
+          connection.end();
+        }
+      );
+    });
 }
 
 // function addRole(employee_first, employee_last, role) {
@@ -51,7 +76,7 @@ function queryEmployees() {
 
 connection.connect((err) => {
   if (err) throw err;
-  console.log(`connected as id ${connection.threadId}`);
+  // console.log(`connected as id ${connection.threadId}`);
 });
 
-queryEmployees();
+addDepartment();
