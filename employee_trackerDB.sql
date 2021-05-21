@@ -27,5 +27,3 @@ PRIMARY KEY(id)
 
 ); 
 
-INSERT INTO department (dept_name) VALUES ("Engineering"),("Accounting"),("Finance"),("Operations"),("Manufacturing"),("Motor Pool"),("Research");
-INSERT INTO employee (first_name, last_name, id) VALUES ("George", "McClellan", 1), ("Ulysses", "Grant", 2), ("William", "Sherman", 3);
