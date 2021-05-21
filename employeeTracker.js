@@ -16,6 +16,41 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
+//Helper Functions to look up Department, Role, and Employee IDs for use in other functions
+
+function getDepartmentID(dept_name) {
+  connection.query(
+    `SELECT id FROM department WHERE dept_name = "${dept_name}"`,
+    (err, res) => {
+      if (err) throw err;
+      console.log(res[0].id);
+      return res[0].id;
+    }
+  );
+}
+
+function getRoleID(role_name) {
+  connection.query(
+    `SELECT id FROM role WHERE title = "${role_name}"`,
+    (err, res) => {
+      if (err) throw err;
+      console.log(res[0].id);
+      return res[0].id;
+    }
+  );
+}
+
+function getEmployeeID(first_name, last_name) {
+  connection.query(
+    `SELECT id FROM employee WHERE first_name = "${first_name}" AND last_name = "${last_name}"`,
+    (err, res) => {
+      if (err) throw err;
+      console.log(res[0].id);
+      return res[0].id;
+    }
+  );
+}
+
 //Generates Overall Summary Table of all Employees, Roles, and Departments
 function queryEmployees() {
   //Chained Inner Join of all 3 Tables on appropriate foreign keys
@@ -79,4 +114,4 @@ connection.connect((err) => {
   // console.log(`connected as id ${connection.threadId}`);
 });
 
-addDepartment();
+getEmployeeID("Jane", "Doe");
