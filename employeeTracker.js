@@ -90,6 +90,39 @@ function addDepartment() {
     });
 }
 
+function addRole() {
+  let deptList = getDepartmentList();
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "What is the name of the role that you would like to add?",
+        name: "newRole",
+      },
+      {
+        type: "input",
+        message: "What is the salary of the new position?",
+        name: "newSalary",
+      },
+      {
+        type: "list",
+        message: "To Which Department Should this Role be Added?",
+        choices: deptList,
+        name: "deptAdd",
+      },
+    ])
+    .then((response) => {
+      let deptID = getDepartmentID(response.deptAdd);
+      connection.query(
+        `INSERT INTO role (title, salary, department_id) VALUES ("${response.newRole}", ${response.newSalary}, ${deptID})`,
+        (err, res) => {
+          if (err) throw err;
+          console.log("New Role Added!");
+        }
+      );
+    });
+}
+
 // function addRole(employee_first, employee_last, role) {
 //   //store inputs for string concatenation
 //   let employeeFirst = employee_first;
@@ -114,4 +147,4 @@ connection.connect((err) => {
   // console.log(`connected as id ${connection.threadId}`);
 });
 
-getEmployeeID("Jane", "Doe");
+addRole();
