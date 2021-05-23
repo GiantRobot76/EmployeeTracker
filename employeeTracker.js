@@ -58,7 +58,7 @@ function addDepartment() {
 
 function addRole() {
   //retrieve list of departments from DB
-  connection.query("SELECT dept_name from department", (err, res) => {
+  connection.query("SELECT dept_name FROM department", (err, res) => {
     if (err) throw err;
 
     //if no error, use results to prompt user for input
@@ -89,7 +89,6 @@ function addRole() {
         },
       ])
       .then((response) => {
-        console.log(response);
         //query DB for department ID
         connection.query(
           `SELECT id FROM department WHERE dept_name ="${response.deptAdd}"`,
@@ -111,6 +110,58 @@ function addRole() {
   });
 }
 
+function addEmployee() {
+  //query DB to get list of current roles
+  connection.query(`SELECT title FROM role`, (err, res) => {
+    if (err) throw err;
+
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the first name of the new employee?",
+          name: "firstName",
+        },
+        {
+          type: "input",
+          message: "What is the last name of the new employee?",
+          name: "lastName",
+        },
+        {
+          type: "rawlist",
+          message: "What role do you want to assign to this employee?",
+          choices() {
+            const roleArray = [];
+            res.forEach(({ title }) => {
+              roleArray.push(title);
+            });
+            return roleArray;
+          },
+          name: "roleAssign",
+        },
+      ])
+      .then((response) => {
+        //query DB for role ID
+        connection.query(
+          `SELECT id FROM role WHERE title ="${response.roleAssign}"`,
+          (err, res) => {
+            if (err) throw err;
+            let roleID = res[0].id;
+            //insert new employee to DB based on user input
+            connection.query(
+              `INSERT INTO employee (first_name, last_name, role_id) VALUES ("${response.firstName}", "${response.lastName}", ${roleID})`,
+              (err, res) => {
+                if (err) throw err;
+                console.log("New Employee Added!");
+                mainMenu();
+              }
+            );
+          }
+        );
+      });
+  });
+}
+
 function mainMenu() {
   connection.end();
 }
@@ -119,4 +170,4 @@ connection.connect((err) => {
   // console.log(`connected as id ${connection.threadId}`);
 });
 
-addRole();
+queryEmployees();
