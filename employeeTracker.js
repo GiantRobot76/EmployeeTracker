@@ -18,7 +18,7 @@ const connection = mysql.createConnection({
 });
 
 //Generates Overall Summary Table of all Employees, Roles, and Departments
-function queryEmployees() {
+function queryAll() {
   //Chained Inner Join of all 3 Tables on appropriate foreign keys
   connection.query(
     "SELECT first_name, last_name, title, MANAGER_ID, salary, dept_name FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id;",
@@ -28,9 +28,45 @@ function queryEmployees() {
       const table = cTable.getTable(res);
       console.log(table);
 
-      connection.end();
+      mainMenu();
     }
   );
+}
+
+function viewDepartment() {
+  //query DB for all departments to form prompt list
+  connection.query("SELECT dept_name FROM department", (err, res) => {
+    if (err) throw err;
+
+    inquirer
+      .prompt([
+        {
+          type: "rawlist",
+          message: "For which department do you wish to obtain info?",
+          choices() {
+            const deptArray = [];
+            res.forEach(({ dept_name }) => {
+              deptArray.push(dept_name);
+            });
+            return deptArray;
+          },
+          name: "deptChoice",
+        },
+      ])
+      .then((response) => {
+        //query DB for relevant results to display
+        connection.query(
+          `SELECT first_name, last_name, title, MANAGER_ID, salary, dept_name FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE dept_name = "${response.deptChoice}"`,
+          (err, res) => {
+            if (err) throw err;
+            const table = cTable.getTable(res);
+            console.log(table);
+
+            mainMenu();
+          }
+        );
+      });
+  });
 }
 
 //functions that add new departments, roles, and employees
@@ -170,4 +206,4 @@ connection.connect((err) => {
   // console.log(`connected as id ${connection.threadId}`);
 });
 
-queryEmployees();
+viewDepartment();
