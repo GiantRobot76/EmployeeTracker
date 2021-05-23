@@ -104,6 +104,49 @@ function viewRole() {
   });
 }
 
+function viewEmployee() {
+  //query DB for all employees to obtain list info
+  connection.query("SELECT first_name, last_name FROM employee", (err, res) => {
+    if (err) throw err;
+
+    const nameArray = [];
+
+    //concatenate first and last name fields in table for list prompt
+
+    for (let i = 0; i < res.length; i++) {
+      let fullName = res[i].first_name + " " + res[i].last_name;
+      nameArray.push(fullName);
+    }
+
+    inquirer
+      .prompt([
+        {
+          type: "rawlist",
+          message: "For which employee would you like to see information?",
+          choices: nameArray,
+          name: "empChoice",
+        },
+      ])
+      .then((response) => {
+        //obtain records just for desired employee
+
+        //employee id will be corresponding index in nameArray +1 by design
+        let empID = nameArray.indexOf(response.empChoice) + 1;
+        connection.query(
+          `SELECT first_name, last_name, title, MANAGER_ID, salary, dept_name FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE employee.id = "${empID}"`,
+          (err, res) => {
+            if (err) throw err;
+            console.log(res);
+            const table = cTable.getTable(res);
+            console.log(table);
+
+            mainMenu();
+          }
+        );
+      });
+  });
+}
+
 //functions that add new departments, roles, and employees
 function addDepartment() {
   inquirer
@@ -241,4 +284,4 @@ connection.connect((err) => {
   // console.log(`connected as id ${connection.threadId}`);
 });
 
-viewRole();
+viewEmployee();
