@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const cTable = require("console.table");
 const inquirer = require("inquirer");
+const { restoreDefaultPrompts } = require("inquirer");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -15,41 +16,6 @@ const connection = mysql.createConnection({
   password: "MonteCarlo314",
   database: "employee_trackerDB",
 });
-
-//Helper Functions to look up Department, Role, and Employee IDs for use in other functions
-
-function getDepartmentID(dept_name) {
-  connection.query(
-    `SELECT id FROM department WHERE dept_name = "${dept_name}"`,
-    (err, res) => {
-      if (err) throw err;
-      console.log(res[0].id);
-      return res[0].id;
-    }
-  );
-}
-
-function getRoleID(role_name) {
-  connection.query(
-    `SELECT id FROM role WHERE title = "${role_name}"`,
-    (err, res) => {
-      if (err) throw err;
-      console.log(res[0].id);
-      return res[0].id;
-    }
-  );
-}
-
-function getEmployeeID(first_name, last_name) {
-  connection.query(
-    `SELECT id FROM employee WHERE first_name = "${first_name}" AND last_name = "${last_name}"`,
-    (err, res) => {
-      if (err) throw err;
-      console.log(res[0].id);
-      return res[0].id;
-    }
-  );
-}
 
 //Generates Overall Summary Table of all Employees, Roles, and Departments
 function queryEmployees() {
@@ -91,57 +57,63 @@ function addDepartment() {
 }
 
 function addRole() {
-  let deptList = getDepartmentList();
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What is the name of the role that you would like to add?",
-        name: "newRole",
-      },
-      {
-        type: "input",
-        message: "What is the salary of the new position?",
-        name: "newSalary",
-      },
-      {
-        type: "list",
-        message: "To Which Department Should this Role be Added?",
-        choices: deptList,
-        name: "deptAdd",
-      },
-    ])
-    .then((response) => {
-      let deptID = getDepartmentID(response.deptAdd);
-      connection.query(
-        `INSERT INTO role (title, salary, department_id) VALUES ("${response.newRole}", ${response.newSalary}, ${deptID})`,
-        (err, res) => {
-          if (err) throw err;
-          console.log("New Role Added!");
-        }
-      );
-    });
+  //retrieve list of departments from DB
+  connection.query("SELECT dept_name from department", (err, res) => {
+    if (err) throw err;
+
+    //if no error, use results to prompt user for input
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the name of the role that you would like to add?",
+          name: "newRole",
+        },
+        {
+          type: "input",
+          message: "What is the salary of the new position?",
+          name: "newSalary",
+        },
+        {
+          type: "rawlist",
+          message: "To Which Department Should this Role be Added?",
+          choices() {
+            const deptArray = [];
+            res.forEach(({ dept_name }) => {
+              deptArray.push(dept_name);
+            });
+            return deptArray;
+          },
+
+          name: "deptAdd",
+        },
+      ])
+      .then((response) => {
+        console.log(response);
+        //query DB for department ID
+        connection.query(
+          `SELECT id FROM department WHERE dept_name ="${response.deptAdd}"`,
+          (err, res) => {
+            if (err) throw err;
+            let deptID = res[0].id;
+            //insert new role to DB based on user input
+            connection.query(
+              `INSERT INTO role (title, salary, department_id) VALUES ("${response.newRole}", ${response.newSalary}, ${deptID})`,
+              (err, res) => {
+                if (err) throw err;
+                console.log("New Role Added!");
+                mainMenu();
+              }
+            );
+          }
+        );
+      });
+  });
 }
 
-// function addRole(employee_first, employee_last, role) {
-//   //store inputs for string concatenation
-//   let employeeFirst = employee_first;
-//   let employeeLast = employee_last;
-//   let desiredRole = role;
-//   let employeeID;
-
-//   //Find employee ID
-//   let employeeQuery = `SELECT id FROM employee where first_name = "${employeeFirst}" AND last_name = "${employeeLast}"`;
-
-//   connection.query(employeeQuery, (err, res) => {
-//     if (err) throw err;
-//     console.log(res[0].id);
-//     employeeID = res[0].id;
-//   });
-//   console.log(employeeID);
-//   connection.end();
-// }
-
+function mainMenu() {
+  connection.end();
+}
 connection.connect((err) => {
   if (err) throw err;
   // console.log(`connected as id ${connection.threadId}`);
