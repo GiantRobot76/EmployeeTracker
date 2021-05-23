@@ -1,7 +1,6 @@
 const mysql = require("mysql");
 const cTable = require("console.table");
 const inquirer = require("inquirer");
-const { restoreDefaultPrompts } = require("inquirer");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -57,6 +56,42 @@ function viewDepartment() {
         //query DB for relevant results to display
         connection.query(
           `SELECT first_name, last_name, title, MANAGER_ID, salary, dept_name FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE dept_name = "${response.deptChoice}"`,
+          (err, res) => {
+            if (err) throw err;
+            const table = cTable.getTable(res);
+            console.log(table);
+
+            mainMenu();
+          }
+        );
+      });
+  });
+}
+
+function viewRole() {
+  //query DB for all roles to form prompt list
+  connection.query("SELECT title FROM role", (err, res) => {
+    if (err) throw err;
+
+    inquirer
+      .prompt([
+        {
+          type: "rawlist",
+          message: "For which role do you wish to obtain info?",
+          choices() {
+            const roleArray = [];
+            res.forEach(({ title }) => {
+              roleArray.push(title);
+            });
+            return roleArray;
+          },
+          name: "roleChoice",
+        },
+      ])
+      .then((response) => {
+        //query DB for relevant results to display
+        connection.query(
+          `SELECT first_name, last_name, title, MANAGER_ID, salary, dept_name FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE title = "${response.roleChoice}"`,
           (err, res) => {
             if (err) throw err;
             const table = cTable.getTable(res);
@@ -206,4 +241,4 @@ connection.connect((err) => {
   // console.log(`connected as id ${connection.threadId}`);
 });
 
-viewDepartment();
+viewRole();
