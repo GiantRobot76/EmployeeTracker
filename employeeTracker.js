@@ -137,7 +137,6 @@ function viewEmployee() {
           `SELECT first_name, last_name, title, MANAGER_ID, salary, dept_name FROM employee INNER JOIN role ON employee.role_id = role.id INNER JOIN department ON role.department_id = department.id WHERE employee.id = "${empID}"`,
           (err, res) => {
             if (err) throw err;
-            console.log(res);
             const table = cTable.getTable(res);
             console.log(table);
 
@@ -336,9 +335,11 @@ function updateRole() {
 function mainMenu() {
   connection.end();
 }
+
+function exit() {
+  connection.end();
+}
 connection.connect((err) => {
   if (err) throw err;
   // console.log(`connected as id ${connection.threadId}`);
 });
-
-viewEmployee();
