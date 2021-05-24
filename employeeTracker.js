@@ -400,6 +400,9 @@ function mainMenu() {
           notHere();
           break;
         case options[12]:
+          notHere();
+          break;
+        case options[13]:
           exit();
           break;
       }
