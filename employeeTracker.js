@@ -164,7 +164,7 @@ function addDepartment() {
         (err, res) => {
           if (err) throw err;
           console.log("New Department Added!");
-          connection.end();
+          mainMenu();
         }
       );
     });
@@ -332,8 +332,83 @@ function updateRole() {
   });
 }
 
+//main program menu
 function mainMenu() {
-  connection.end();
+  console.log("Welcome to Employee Manager. What would you like to do today?");
+
+  let options = [
+    "View All Employees",
+    "View Employees By Department",
+    "View Employees by Role",
+    "View Employees by Manager",
+    "Add A New Department",
+    "Add a New Role",
+    "Add a New Employee",
+    "Update the Role of an Existing Employee",
+    "Update an Employee's Manager",
+    "Delete a Department",
+    "Delete a Role",
+    "Delete an Employee",
+    "View Total Budget by Department",
+    "Exit the Program",
+  ];
+
+  inquirer
+    .prompt([
+      {
+        type: "rawlist",
+        choices: options,
+        name: "menuInput",
+      },
+    ])
+    .then((response) => {
+      switch (response.menuInput) {
+        case options[0]:
+          queryAll();
+          break;
+        case options[1]:
+          viewDepartment();
+          break;
+        case options[2]:
+          viewRole();
+          break;
+        case options[3]:
+          notHere();
+          break;
+        case options[4]:
+          addDepartment();
+          break;
+        case options[5]:
+          addRole();
+          break;
+        case options[6]:
+          addEmployee();
+          break;
+        case options[7]:
+          updateRole();
+          break;
+        case options[8]:
+          notHere();
+          break;
+        case options[9]:
+          notHere();
+          break;
+        case options[10]:
+          notHere();
+          break;
+        case options[11]:
+          notHere();
+          break;
+        case options[12]:
+          exit();
+          break;
+      }
+    });
+}
+
+function notHere() {
+  console.log("Sorry, that feature isn't implemented yet!");
+  mainMenu();
 }
 
 function exit() {
@@ -343,3 +418,5 @@ connection.connect((err) => {
   if (err) throw err;
   // console.log(`connected as id ${connection.threadId}`);
 });
+
+mainMenu();
