@@ -32,6 +32,7 @@ function queryAll() {
   );
 }
 
+//following functions show info by Department, Role, and Employee Respectively
 function viewDepartment() {
   //query DB for all departments to form prompt list
   connection.query("SELECT dept_name FROM department", (err, res) => {
@@ -273,6 +274,62 @@ function addEmployee() {
           }
         );
       });
+  });
+}
+
+//following function updates employee role
+function updateRole() {
+  //query DB for all employees to obtain list info
+  connection.query("SELECT first_name, last_name FROM employee", (err, res) => {
+    if (err) throw err;
+    const nameArray = [];
+    //concatenate first and last name fields in table for list prompt
+    for (let i = 0; i < res.length; i++) {
+      let fullName = res[i].first_name + " " + res[i].last_name;
+      nameArray.push(fullName);
+    }
+    //query DB for all roles to obtain list info
+    connection.query("SELECT title FROM role", (err, res) => {
+      if (err) throw err;
+      const roleArray = [];
+
+      //concatenate first and last name fields in table for list prompt
+
+      for (let i = 0; i < res.length; i++) {
+        let nextTitle = res[i].title;
+        roleArray.push(nextTitle);
+      }
+      inquirer
+        .prompt([
+          {
+            type: "rawlist",
+            message: "For which employee would you like to update a role?",
+            choices: nameArray,
+            name: "empChoice",
+          },
+          {
+            type: "rawlist",
+            message: "Which role would you like to assign this employee?",
+            choices: roleArray,
+            name: "roleChoice",
+          },
+        ])
+        .then((response) => {
+          //update role for designated employee
+
+          //employee id will be corresponding index in nameArray +1 by design, role id wiill be corresponding index in roleArray by design
+          let empID = nameArray.indexOf(response.empChoice) + 1;
+          let roleID = roleArray.indexOf(response.roleChoice) + 1;
+          connection.query(
+            `UPDATE employee SET role_id = ${roleID} WHERE id = ${empID}`,
+            (err, res) => {
+              if (err) throw err;
+              console.log("Employee Role Updated!");
+              mainMenu();
+            }
+          );
+        });
+    });
   });
 }
 
