@@ -267,6 +267,17 @@ function addRole() {
 }
 
 function addEmployee() {
+  //get list of all names for manager selection name array
+  let nameArray = [];
+  connection.query("SELECT first_name, last_name FROM employee", (err, res) => {
+    if (err) throw err;
+    //concatenate first and last name fields in table for list prompt
+    for (let i = 0; i < res.length; i++) {
+      let fullName = res[i].first_name + " " + res[i].last_name;
+      nameArray.push(fullName);
+    }
+  });
+
   //query DB to get list of current roles
   connection.query(`SELECT title FROM role`, (err, res) => {
     if (err) throw err;
@@ -295,8 +306,17 @@ function addEmployee() {
           },
           name: "roleAssign",
         },
+        {
+          type: "rawlist",
+          message: "Who will this employee report to?",
+          choices: nameArray,
+          name: "manAssign",
+        },
       ])
       .then((response) => {
+        //manager id will be corresponding index in nameArray +1 by design
+        let manID = nameArray.indexOf(response.manAssign);
+
         //query DB for role ID
         connection.query(
           `SELECT id FROM role WHERE title ="${response.roleAssign}"`,
@@ -305,7 +325,7 @@ function addEmployee() {
             let roleID = res[0].id;
             //insert new employee to DB based on user input
             connection.query(
-              `INSERT INTO employee (first_name, last_name, role_id) VALUES ("${response.firstName}", "${response.lastName}", ${roleID})`,
+              `INSERT INTO employee (first_name, last_name, role_id, MANAGER_ID) VALUES ("${response.firstName}", "${response.lastName}", ${roleID}, ${manID})`,
               (err, res) => {
                 if (err) throw err;
                 console.log("New Employee Added!");
