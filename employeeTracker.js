@@ -394,6 +394,50 @@ function updateRole() {
   });
 }
 
+//following function updates employee manager
+function updateManager() {
+  //get list of all names for employee and manager selection name array
+  let nameArray = [];
+  connection.query("SELECT first_name, last_name FROM employee", (err, res) => {
+    if (err) throw err;
+    //concatenate first and last name fields in table for list prompt
+    for (let i = 0; i < res.length; i++) {
+      let fullName = res[i].first_name + " " + res[i].last_name;
+      nameArray.push(fullName);
+    }
+
+    inquirer
+      .prompt([
+        {
+          type: "rawlist",
+          message:
+            "For which employee would you like to make a manager change?",
+          choices: nameArray,
+          name: "empToChange",
+        },
+        {
+          type: "rawlist",
+          message: "Who should this employee report to now?",
+          choices: nameArray,
+          name: "newManager",
+        },
+      ])
+      .then((response) => {
+        //employee id will be corresponding index in nameArray +1 by design
+        let changeEmp = nameArray.indexOf(response.empToChange);
+        let newMan = nameArray.indexOf(response.newManager);
+        connection.query(
+          `UPDATE employee SET MANAGER_ID = ${newMan} WHERE employee.id = ${changeEmp}`,
+          (err, res) => {
+            if (err) throw err;
+            console.log("Manager Updated!");
+            mainMenu();
+          }
+        );
+      });
+  });
+}
+
 //main program menu
 function mainMenu() {
   console.log("Welcome to Employee Manager. What would you like to do today?");
@@ -450,7 +494,7 @@ function mainMenu() {
           updateRole();
           break;
         case options[8]:
-          notHere();
+          updateManager();
           break;
         case options[9]:
           notHere();
