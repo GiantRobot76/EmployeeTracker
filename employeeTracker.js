@@ -315,7 +315,7 @@ function addEmployee() {
       ])
       .then((response) => {
         //manager id will be corresponding index in nameArray +1 by design
-        let manID = nameArray.indexOf(response.manAssign);
+        let manID = nameArray.indexOf(response.manAssign) + 1;
 
         //query DB for role ID
         connection.query(
