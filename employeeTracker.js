@@ -424,12 +424,14 @@ function updateManager() {
       ])
       .then((response) => {
         //employee id will be corresponding index in nameArray +1 by design
-        let changeEmp = nameArray.indexOf(response.empToChange);
-        let newMan = nameArray.indexOf(response.newManager);
+        let changeEmp = nameArray.indexOf(response.empToChange) + 1;
+        let newMan = nameArray.indexOf(response.newManager) + 1;
         connection.query(
           `UPDATE employee SET MANAGER_ID = ${newMan} WHERE employee.id = ${changeEmp}`,
           (err, res) => {
             if (err) throw err;
+            console.log(newMan);
+            console.log(changeEmp);
             console.log("Manager Updated!");
             mainMenu();
           }
@@ -493,18 +495,6 @@ function mainMenu() {
           updateManager();
           break;
         case options[9]:
-          notHere();
-          break;
-        case options[10]:
-          notHere();
-          break;
-        case options[11]:
-          notHere();
-          break;
-        case options[12]:
-          notHere();
-          break;
-        case options[13]:
           exit();
           break;
       }
