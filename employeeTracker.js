@@ -452,10 +452,6 @@ function mainMenu() {
     "Add a New Employee",
     "Update the Role of an Existing Employee",
     "Update an Employee's Manager",
-    "Delete a Department",
-    "Delete a Role",
-    "Delete an Employee",
-    "View Total Budget by Department",
     "Exit the Program",
   ];
 
